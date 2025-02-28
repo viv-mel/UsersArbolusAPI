@@ -4,6 +4,9 @@ using UsersArbolusAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Binding IOptions
 var arbolusApiOptions = builder.Configuration.GetSection(ArbolusApiOptions.SectionName);
 builder.Services.Configure<ArbolusApiOptions>(arbolusApiOptions);
