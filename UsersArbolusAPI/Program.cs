@@ -1,16 +1,14 @@
 using Asp.Versioning;
+using Microsoft.AspNetCore.Diagnostics;
 using Polly;
 using UsersArbolusAPI.Options;
 using UsersArbolusAPI.Services;
+using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-
-// Binding IOptions
-var arbolusApiOptions = builder.Configuration.GetSection(ArbolusApiOptions.SectionName);
-builder.Services.Configure<ArbolusApiOptions>(arbolusApiOptions);
 
 // Add services to the container.
 
@@ -31,6 +29,10 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
+// Binding IOptions
+var arbolusApiOptions = builder.Configuration.GetSection(ArbolusApiOptions.SectionName);
+builder.Services.Configure<ArbolusApiOptions>(arbolusApiOptions);
+
 // Configuring HttpClients
 var arbolusBaseAddress = arbolusApiOptions.GetValue<string>(nameof(ArbolusApiOptions.ApiBaseUrl));
 builder.Services.AddHttpClient(ArbolusApiOptions.SectionName,
@@ -42,6 +44,7 @@ builder.Services.AddHttpClient(ArbolusApiOptions.SectionName,
         policyBuilder.WaitAndRetryAsync(3, retryNumber => TimeSpan.FromMilliseconds(1000)));
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -55,6 +58,30 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseExceptionHandler(exceptionHandlerApp =>
+    {
+        exceptionHandlerApp.Run(async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = Text.Plain;
+
+            await context.Response.WriteAsync("An exception was thrown.");
+
+            var exceptionHandlerPathFeature =
+                context.Features.Get<IExceptionHandlerPathFeature>();
+
+            if (exceptionHandlerPathFeature?.Error is HttpRequestException)
+            {
+                await context.Response.WriteAsync("The http conexion failed.");
+            }
+
+            await context.Response.WriteAsync($"Please, contact the technical team, sharing the following trace id: {context.TraceIdentifier}.");
+        });
+    });
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
