@@ -9,10 +9,16 @@ var arbolusApiOptions = builder.Configuration.GetSection(ArbolusApiOptions.Secti
 builder.Services.Configure<ArbolusApiOptions>(arbolusApiOptions);
 
 // Add services to the container.
-builder.Services.AddHttpClient("PollyWaitAndRetry")
+
+// Configuring HttpClients
+var arbolusBaseAddress = arbolusApiOptions.GetValue<string>(nameof(ArbolusApiOptions.ApiBaseUrl));
+builder.Services.AddHttpClient(ArbolusApiOptions.SectionName,
+    client =>
+    {
+        client.BaseAddress = !string.IsNullOrWhiteSpace(arbolusBaseAddress) ? new Uri(arbolusBaseAddress) : default;
+    })
     .AddTransientHttpErrorPolicy(policyBuilder =>
-        policyBuilder.WaitAndRetryAsync(
-            3, retryNumber => TimeSpan.FromMilliseconds(1000)));
+        policyBuilder.WaitAndRetryAsync(3, retryNumber => TimeSpan.FromMilliseconds(1000)));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

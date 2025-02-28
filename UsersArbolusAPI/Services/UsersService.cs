@@ -1,12 +1,14 @@
-﻿using System.Net.Http;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using UsersArbolusAPI.Models;
+using UsersArbolusAPI.Options;
 
 namespace UsersArbolusAPI.Services
 {
     public class UsersService : IUsersService
     {
-        const string url = "https://2q2woep105.execute-api.eu-west-1.amazonaws.com/napptilus/oompa-loompas?page=1";
         private readonly IHttpClientFactory httpClientFactory;
 
         public UsersService(IHttpClientFactory httpClientFactory)
@@ -14,17 +16,12 @@ namespace UsersArbolusAPI.Services
             this.httpClientFactory = httpClientFactory;
         }
 
-        //private readonly HttpClient httpClient;
-
-        //public UsersService(HttpClient httpClient)
-        //{
-        //    this.httpClient = httpClient;
-        //}
-
         public async Task<UserList> GetUsers()
         {
-            var httpClient = httpClientFactory.CreateClient(); // TODO HttpClient with pattern and Polly library
-            using HttpResponseMessage response = await httpClient.GetAsync(url);
+            var uri = new Uri($"/napptilus/oompa-loompas?page=1", UriKind.Relative);
+            var httpClient = httpClientFactory.CreateClient(ArbolusApiOptions.SectionName);
+
+            using HttpResponseMessage response = await httpClient.GetAsync(uri);
 
             response.EnsureSuccessStatusCode();
 
