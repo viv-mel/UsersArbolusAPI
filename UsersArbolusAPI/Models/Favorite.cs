@@ -2,18 +2,18 @@
 
 namespace UsersArbolusAPI.Models
 {
-    public class Favorite
+    public record Favorite
     {
         [JsonPropertyName("color")]
-        public string Color { get; set; }
+        public string? Color { get; set; }
 
         [JsonPropertyName("food")]
-        public string Food { get; set; }
+        public string? Food { get; set; }
 
         [JsonPropertyName("random_string")]
-        public string RandomString { get; set; }
+        public string? RandomString { get; set; }
 
         [JsonPropertyName("song")]
-        public string Song { get; set; }
+        public string? Song { get; set; }
     }
 }

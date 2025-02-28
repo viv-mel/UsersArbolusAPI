@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace UsersArbolusAPI.Models
 {
-    public class UserList
+    public record UserList
     {
         [JsonPropertyName("current")]
         public int Current { get; set; }
@@ -12,6 +12,6 @@ namespace UsersArbolusAPI.Models
         public int Total { get; set; }
 
         [JsonPropertyName("results")]
-        public List<User> Results { get; set; }
+        public List<User> Results { get; set; } = [];
     }
 }
