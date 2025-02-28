@@ -1,0 +1,13 @@
+services:
+  usersarbolusapi:
+    image: ${DOCKER_REGISTRY-}usersarbolusapi:1
+    build:
+      context: .
+      dockerfile: UsersArbolusAPI/Dockerfile
+    ports:
+      - "32770:32770"
+    environment:      
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:32770
+      - ArbolusApiConfig__ApiBaseUrl=https://2q2woep105.execute-api.eu-west-1.amazonaws.com
+
