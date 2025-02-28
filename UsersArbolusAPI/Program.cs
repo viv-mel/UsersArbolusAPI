@@ -1,7 +1,12 @@
 using Polly;
+using UsersArbolusAPI.Options;
 using UsersArbolusAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Binding IOptions
+var arbolusApiOptions = builder.Configuration.GetSection(ArbolusApiOptions.SectionName);
+builder.Services.Configure<ArbolusApiOptions>(arbolusApiOptions);
 
 // Add services to the container.
 builder.Services.AddHttpClient("PollyWaitAndRetry")
